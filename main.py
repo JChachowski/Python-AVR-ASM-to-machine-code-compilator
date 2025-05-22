@@ -2,45 +2,55 @@ from antlr4 import *
 from AVRLexer import AVRLexer
 from AVRParser import AVRParser
 from MyAVRVisitor import MyAVRVisitor 
+from intelhex import IntelHex
+from label_collector import LabelCollector
+from code_generator import CodeGenerator
 
-input_code = InputStream("""
+#Intel HEX file generator
+def write_hex_file(filename: str, machine_code: list[int]):
+    ih = IntelHex()
+    addr = 0
+    for word in machine_code:
+        ih.puts(addr, word.to_bytes(2, byteorder="little"))
+        addr += 2
+    ih.write_hex_file(filename)
+
+#raw binary file generator
+def write_bin_file(filename: str, machine_code: list[int]):
+    with open(filename, 'wb') as f:
+        for word in machine_code:
+            f.write(word.to_bytes(2, byteorder='little'))
+
+def assemble(input_code: str, hex_filename: str):
+    input_stream = InputStream(input_code.upper())
+
+    lexer = AVRLexer(input_stream)
+    stream = CommonTokenStream(lexer)
+    parser = AVRParser(stream)
+    tree = parser.program()
+
+    #collect labels
+    collector = LabelCollector()
+    collector.visit(tree)
+
+    #generate code
+    generator = CodeGenerator(collector.labels)
+    generator.visit(tree)
+    machine_code = generator.get_flat_code()
+
+    write_hex_file("test.hex",machine_code)
+    write_bin_file("test.bin",machine_code)
+    return machine_code
+
+#TODO input handling: add propper file input, sanitize it and add .upper()
+input_code =  """
 start:
-    ldi    R16, 0x03
-    ldi    R17, 0xFF
-    out    0x3D, R17
-    out    0x3E, R16
-    ldi    R20, 1
-    ldi    R21, 0
-    out    0x17, R20
-LOOP:
-    out    0x18, R20
-    call    DELAY_1S
-    out    0x18, R21
-    call    DELAY_1S
-    jmp    LOOP
+    ldi    R16, 0xF0
+    ldi    R17, 0xF0
+    out    0x04, R16
+    out    0x05, R16
+    jmp    start
+"""
 
-DELAY_1S:
-    ldi    r16, 82
-    ldi    r17, 43
-    ldi    r18, 0
-DELAY_1S_1: 
-    dec    r18
-    brne    DELAY_1S_1
-    dec    r17
-    brne    DELAY_1S_1
-    dec    r16
-    brne    DELAY_1S_1
-    lpm
-    nop
-    ret
-""".upper())
-
-lexer = AVRLexer(input_code)
-stream = CommonTokenStream(lexer)
-parser = AVRParser(stream)
-
-tree = parser.program()
-
-# Visiting
-visitor = MyAVRVisitor()
-visitor.visit(tree)
+assembled_code = assemble(input_code, "out.hex")
+assembled_code
