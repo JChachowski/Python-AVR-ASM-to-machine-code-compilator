@@ -38,18 +38,22 @@ def assemble(input_code: str, hex_filename: str):
     generator.visit(tree)
     machine_code = generator.get_flat_code()
 
-    write_hex_file("test.hex",machine_code)
-    write_bin_file("test.bin",machine_code)
+    write_hex_file(hex_filename, machine_code)
+    write_bin_file("out.bin",machine_code)
     return machine_code
 
 #TODO input handling: add propper file input, sanitize it and add .upper()
 input_code =  """
 start:
-    ldi    R16, 0xF0
-    ldi    R17, 0xF0
-    out    0x04, R16
-    out    0x05, R16
-    jmp    start
+        ADC R16, R17
+        ADD R18, R19
+        AND R20, R21
+        ANDI R22, 0x0F
+        ASR R23
+        BCLR 0
+        BLD R24, 1
+        BRBC 1, start
+        BRBS 2, start
 """
 
 assembled_code = assemble(input_code, "out.hex")
