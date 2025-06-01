@@ -38,7 +38,7 @@ Create Assembler for AVR writen in Python.
 | `NEWLINE`     | `\n`            | Line breaks                            |
 | `WS`          | `[ \t]+`        | Whitespace (ignored)                   |
 
-full list of mnemonics is available at pt. 5 in [AVR-Instruction-Set-Manual](https://ww1.microchip.com/downloads/en/devicedoc/AVR-Instruction-Set-Manual-DS40002198A.pdf) and will be added to AVR.g4 file later as a " ADD | ADC | ADIW |..." list
+full list of mnemonics is available at pt. 5 in [AVR-Instruction-Set-Manual](https://ww1.microchip.com/downloads/en/devicedoc/AVR-Instruction-Set-Manual-DS40002198A.pdf).
 
 ```
 grammar AVR;
@@ -56,9 +56,9 @@ directive       : DOT_DIRECTIVE operandList? ;
 comment         : COMMENT ;
 
 // Lexer rules
-mnemonic        : [A-Z]+ ;
-REGISTER        : 'R' [0-9]{1,2} ;
-NUMBER          : '0x' [0-9a-fA-F]+ | [0-9]+ ;
+mnemonic        : 'ADC' | 'ADD' | 'ADIW' | 'AND' | 'ANDI' | 'ASR' | 'BCLR' | 'BLD' | 'BRBC' | 'BRBS' | 'BRCC' | 'BRCS' | 'BREAK'| ...;
+REGISTER        : 'R' [0-9] | 'R'{1,2}[0-9] | 'R30' | 'R31' ;
+NUMBER          : '0x' [0-9a-fA-F]+ | '0X' [0-9a-fA-F]+ | [0-9]+ ;
 LABEL_DEF       : [a-zA-Z_][a-zA-Z0-9_]* ':' ;
 LABEL_REF       : [a-zA-Z_][a-zA-Z0-9_]* ;
 DOT_DIRECTIVE   : '.' [a-zA-Z]+ ;
@@ -66,6 +66,7 @@ COMMENT         : ';' ~[\r\n]* ;
 
 NEWLINE         : [\r\n]+ ;
 WS              : [ \t]+ -> skip ;
+
 ```
 ---
 # Examples (WIP)
