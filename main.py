@@ -54,6 +54,27 @@ start:
         BLD R24, 1
         BRBC 1, start
         BRBS 2, start
+        BRCC start
+        BRCS start
+        BREAK
+        BREQ start
+        BRGE start
+        BRHC start
+        BRHS start
+        BRID start
+        BRIE start
+        BRLO start
+        BRLT start
+        BRMI start
+        BRNE start
+        BRPL start
+        BRSH start
+        BRTC start
+        BRTS start
+        BRVC start
+        BRVS start
+        BSET 1
+        BST R25, 2
 """
 
 assembled_code = assemble(input_code, "out.hex")
