@@ -20,7 +20,7 @@ class CodeGenerator(AVRVisitor):
         if mnemonic == "ADC":
             # Format: ADC Rd,Rr
             # 0001 11rd dddd rrrr
-            opcode = 0b0000110000000000
+            opcode = 0b0001110000000000
             Rd = int(operands[0].replace("R", ""))
             Rr = int(operands[1].replace("R", ""))
 
@@ -30,7 +30,7 @@ class CodeGenerator(AVRVisitor):
         elif mnemonic == "ADD":
             # Format: ADD Rd,Rr
             # 0000 11rd dddd rrrr
-            opcode = 0b0001110000000000
+            opcode = 0b0000110000000000
             Rd = int(operands[0].replace("R", ""))
             Rr = int(operands[1].replace("R", ""))
 
@@ -100,7 +100,7 @@ class CodeGenerator(AVRVisitor):
             # k ma dwie opcje: 1. label, 2. liczba -64:63
             k = operands[1]
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) | (s & 0b111)
@@ -115,7 +115,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[1]
 
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) | (s & 0b111)
@@ -128,7 +128,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3)
@@ -141,7 +141,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3)
@@ -160,7 +160,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -173,7 +173,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -186,7 +186,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -199,7 +199,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -212,7 +212,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -225,7 +225,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -238,20 +238,20 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
             return int(final)
         
         elif mnemonic == "BRLT":
-            #Syntax: BRLT k 
+            #Syntax: BRLT k
             # 1111 00kk kkkk k100
             opcode = 0b1111000000000100
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -262,12 +262,14 @@ class CodeGenerator(AVRVisitor):
             # 1111 00kk kkkk k010
             opcode = 0b1111000000000010
             k = operands[0]
-            
+            print(k)
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            print(addres)
+            if(addres != None): addres = ((addres-self.pc) // 2) - 1
             else: addres = int(k.lower(),0)
-
+            print(addres)
             final = opcode | ((addres & 0b1111111) << 3) 
+            print(bin(final))
             return int(final)
 
         elif mnemonic == "BRNE":
@@ -277,7 +279,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = ((addres-(self.pc))  // 2) - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -290,7 +292,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -303,7 +305,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -316,7 +318,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -329,7 +331,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -342,7 +344,7 @@ class CodeGenerator(AVRVisitor):
             k = operands[0]
             
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -353,9 +355,8 @@ class CodeGenerator(AVRVisitor):
             # 1111 00kk kkkk k011
             opcode = 0b1111000000000011
             k = operands[0]
-            
             addres = self.symbol_table.get(k,None)
-            if(addres != None): addres = addres // 2
+            if(addres != None): addres = (addres-self.pc) // 2 - 1
             else: addres = int(k.lower(),0)
 
             final = opcode | ((addres & 0b1111111) << 3) 
@@ -383,6 +384,17 @@ class CodeGenerator(AVRVisitor):
             return int(final)
         
 
+        elif mnemonic == "OUT":
+            #Syntax: OUT A,Rr 
+            # 1011 1AAr rrrr AAAA
+            opcode = 0b1011100000000000
+            a = int(operands[0].lower(),0)
+            Rr = int(operands[1].replace("R", ""))
+            
+            final = opcode | ((a & 0b110000) << 5) | ((Rr & 0b11111)<<4) | (a & 0b001111)
+            print(bin(final))
+            return int(final)
+
         #elif mnemonic == "":
         #elif mnemonic == "":
         #elif mnemonic == "":
@@ -393,8 +405,16 @@ class CodeGenerator(AVRVisitor):
         #elif mnemonic == "":
         #elif mnemonic == "":
         #elif mnemonic == "":
-        #elif mnemonic == "":
-        #elif mnemonic == "":
+
+        elif mnemonic == "LDI":
+            #Syntax: LDI Rd, k
+            # 1110 KKKK dddd KKKK
+            opcode = 0b1110000000000000
+            Rd = int(operands[0].replace("R", ""))
+            k = int(operands[1].lower(),0)
+
+            final = opcode | ((k & 0b11110000) << 4) | ((Rd & 0b00001111) << 4) | (k & 0b00001111)
+            return int(final)
 
 
         else:

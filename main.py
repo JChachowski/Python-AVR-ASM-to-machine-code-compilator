@@ -1,3 +1,4 @@
+import sys
 from antlr4 import *
 from AVRLexer import AVRLexer
 from AVRParser import AVRParser
@@ -21,7 +22,8 @@ def write_bin_file(filename: str, machine_code: list[int]):
         for word in machine_code:
             f.write(word.to_bytes(2, byteorder='little'))
 
-def assemble(input_code: str, hex_filename: str):
+#type "hex" | "bin"
+def assemble(input_code: str, filename: str, type: str):
     input_stream = InputStream(input_code.upper())
 
     lexer = AVRLexer(input_stream)
@@ -29,7 +31,7 @@ def assemble(input_code: str, hex_filename: str):
     parser = AVRParser(stream)
     tree = parser.program()
 
-    #collect labels
+    #collect labels 
     collector = LabelCollector()
     collector.visit(tree)
 
@@ -38,44 +40,83 @@ def assemble(input_code: str, hex_filename: str):
     generator.visit(tree)
     machine_code = generator.get_flat_code()
 
-    write_hex_file(hex_filename, machine_code)
-    write_bin_file("out.bin",machine_code)
+    if(type == "hex"):
+        filename = filename
+        write_hex_file(filename, machine_code)
+    elif(type == "bin"): 
+        filename = filename
+        write_bin_file(filename, machine_code)
+    else: print("ERROR: file not saved, wrong type")
     return machine_code
 
 #TODO input handling: add propper file input, sanitize it and add .upper()
 input_code =  """
+
 start:
-        ADC R16, R17
-        ADD R18, R19
-        AND R20, R21
-        ANDI R22, 0x0F
-        ASR R23
-        BCLR 0
-        BLD R24, 1
-        BRBC 1, start
-        BRBS 2, start
-        BRCC start
-        BRCS start
-        BREAK
-        BREQ start
-        BRGE start
-        BRHC start
-        BRHS start
-        BRID start
-        BRIE start
-        BRLO start
-        BRLT start
-        BRMI start
-        BRNE start
-        BRPL start
-        BRSH start
-        BRTC start
-        BRTS start
-        BRVC start
-        BRVS start
-        BSET 1
-        BST R25, 2
+        LDI R16, 0x20      ; R16 = 0b00100000 (PB5 mask)
+        OUT 0x04, R16          ; DDRB ← R16 (set PB5 as output)
+
+loop:
+        OUT 0x05, R16          ; PORTB ← R16 → LED ON
+
+        ; ~0.5 second delay (nested loops)
+        LDI R17, 20            ; Outer loop count (tuned)
+delay_on_outer:
+        LDI R18, 255           ; Middle loop
+delay_on_middle:
+        LDI R19, 255           ; Inner loop
+delay_on_inner:
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        ADD R19, R20           ; R20 = 0, so acts like DEC (loop R19 down)
+        BRNE delay_on_inner
+        ADD R18, R20
+        BRNE delay_on_middle
+        ADD R17, R20
+        BRNE delay_on_outer
+
+        LDI R21, 0x00
+        OUT 0x05, R21          ; PORTB ← 0 → LED OFF
+
+        ; ~0.5 second delay again
+        LDI R17, 20
+delay_off_outer:
+        LDI R18, 255
+delay_off_middle:
+        LDI R19, 255
+delay_off_inner:
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        ADD R19, R20
+        BRNE delay_off_inner
+        ADD R18, R20
+        BRNE delay_off_middle
+        ADD R17, R20
+        BRNE delay_off_outer
+
+        BRCC loop              ; Unconditional loop back
 """
 
-assembled_code = assemble(input_code, "out.hex")
+input_filename = sys.argv[1]
+output_filename = sys.argv[2]
+print(input_filename[-4:])
+print(output_filename[-4:] == ".hex")
+if(input_filename[-4:] != ".asm"): 
+    print("ERROR: input filename extension incorrect")
+    exit()
+if(output_filename[-4:] not in [".hex", ".bin"]): 
+    print("ERROR: output filename extension incorrect")
+    exit()
+output_type = output_filename[-3:]
+
+with open(input_filename, "r", encoding="utf-8") as file:
+    input_code = file.read()
+
+assembled_code = assemble(input_code, "out.hex",output_type)
 assembled_code
