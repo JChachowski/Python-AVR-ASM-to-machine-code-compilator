@@ -10,9 +10,12 @@ class CodeGenerator(AVRVisitor):
         mnemonic = ctx.mnemonic().getText()
         operands = ctx.operandList().getText().replace(" ", "").split(",") if ctx.operandList() else []
         opcode = self.encode_instruction(mnemonic, operands)
-        print(hex(opcode))
+        print(hex(opcode), "@ pc: ", self.pc)
         self.code.append(opcode)
-        self.pc += 2
+        if(mnemonic == "CALL"):
+            self.pc += 4
+        else:
+            self.pc += 2
         return self.visitChildren(ctx)
 
     # 4 out of 124
@@ -262,14 +265,12 @@ class CodeGenerator(AVRVisitor):
             # 1111 00kk kkkk k010
             opcode = 0b1111000000000010
             k = operands[0]
-            print(k)
+
             addres = self.symbol_table.get(k,None)
-            print(addres)
             if(addres != None): addres = ((addres-self.pc) // 2) - 1
             else: addres = int(k.lower(),0)
-            print(addres)
+
             final = opcode | ((addres & 0b1111111) << 3) 
-            print(bin(final))
             return int(final)
 
         elif mnemonic == "BRNE":
@@ -383,7 +384,42 @@ class CodeGenerator(AVRVisitor):
             final = opcode | ((Rd & 0b11111) << 4) | (b & 0b111)
             return int(final)
         
+        # 32bit instruction, k is either PC number or label
+        elif mnemonic == "CALL":
+            #Syntax: CALL k 
+            # 1001 010k kkkk 111k kkkk kkkk kkkk kkkk
+            opcode = 0b10010100000011100000000000000000
+            k = operands[0]
+            addres = self.symbol_table.get(k,None)
+            if(addres != None): addres = addres // 2
+            else: addres = int(k.lower(),0)
+            #print()
+            #print("opcode", bin(opcode))
+            #print("adres", bin(addres))
+            #print("---vvv---")
+            #print(bin(((addres & 0b1111100000000000000000) << 3)))
+            #print(bin((addres & 0b0000011111111111111111)))
+            #print(bin(opcode))
+            #print("---^^^---")
+            final = opcode | ((addres & 0b1111100000000000000000) << 3) | (addres & 0b0000011111111111111111)
+            #print("final", bin(final))
+            return int(final)
 
+
+        #elif mnemonic == "":
+        #elif mnemonic == "":
+        #elif mnemonic == "":
+        #elif mnemonic == "":
+        #elif mnemonic == "":
+        #elif mnemonic == "":
+        #elif mnemonic == "":
+        #elif mnemonic == "":
+        elif mnemonic == "RET":
+            #Syntax: RET
+            # 1001 0101 0000 1000
+            opcode = 0b1001010100001000
+            return(int(opcode))
+        
         elif mnemonic == "OUT":
             #Syntax: OUT A,Rr 
             # 1011 1AAr rrrr AAAA
@@ -392,27 +428,19 @@ class CodeGenerator(AVRVisitor):
             Rr = int(operands[1].replace("R", ""))
             
             final = opcode | ((a & 0b110000) << 5) | ((Rr & 0b11111)<<4) | (a & 0b001111)
-            print(bin(final))
             return int(final)
-
-        #elif mnemonic == "":
-        #elif mnemonic == "":
-        #elif mnemonic == "":
-        #elif mnemonic == "":
-        #elif mnemonic == "":
-        #elif mnemonic == "":
-        #elif mnemonic == "":
-        #elif mnemonic == "":
-        #elif mnemonic == "":
-        #elif mnemonic == "":
-
+        
         elif mnemonic == "LDI":
             #Syntax: LDI Rd, k
             # 1110 KKKK dddd KKKK
             opcode = 0b1110000000000000
             Rd = int(operands[0].replace("R", ""))
-            k = int(operands[1].lower(),0)
 
+            k = int(operands[1].lower(),0)
+            print(operands[1])
+            #if(k[1] == 'x'): k = int(operands[1].lower(),16)
+            #if(k[1] == 'b'): k = int(operands[1].lower(),2)
+            print(k)
             final = opcode | ((k & 0b11110000) << 4) | ((Rd & 0b00001111) << 4) | (k & 0b00001111)
             return int(final)
 

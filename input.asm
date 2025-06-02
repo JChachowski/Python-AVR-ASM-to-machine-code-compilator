@@ -1,49 +1,31 @@
 start:
         LDI R16, 0x20      ; R16 = 0b00100000 (PB5 mask)
         OUT 0x04, R16          ; DDRB ← R16 (set PB5 as output)
-
-loop:
+main_loop:
+        CALL led_on
+        CALL delay
+        CALL led_off
+        CALL delay
+        BRCC main_loop         ; Loop forever (unconditional)
+led_on:
         OUT 0x05, R16          ; PORTB ← R16 → LED ON
-
-        ; ~0.5 second delay (nested loops)
-        LDI R17, 20            ; Outer loop count (tuned)
-delay_on_outer:
-        LDI R18, 255           ; Middle loop
-delay_on_middle:
-        LDI R19, 255           ; Inner loop
-delay_on_inner:
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        ADD R19, R20           ; R20 = 0, so acts like DEC (loop R19 down)
-        BRNE delay_on_inner
-        ADD R18, R20
-        BRNE delay_on_middle
-        ADD R17, R20
-        BRNE delay_on_outer
-
-        LDI R21, 0x00
-        OUT 0x05, R21          ; PORTB ← 0 → LED OFF
-
-        ; ~0.5 second delay again
-        LDI R17, 20
-delay_off_outer:
-        LDI R18, 255
-delay_off_middle:
+        RET
+led_off:
+        LDI R17, 0x00
+        OUT 0x05, R17          ; PORTB ← 0 → LED OFF
+        RET
+delay:
+        LDI R18, 100
+delay_loop1:
         LDI R19, 255
-delay_off_inner:
+delay_loop2:
+        LDI R20, 255
+delay_loop3:
         NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        ADD R19, R20
-        BRNE delay_off_inner
-        ADD R18, R20
-        BRNE delay_off_middle
-        ADD R17, R20
-        BRNE delay_off_outer
-
-        BRCC loop              ; Unconditional loop back
+        ADD R20, R21           ; R21 = 0, so this acts like DEC
+        BRNE delay_loop3
+        ADD R19, R21
+        BRNE delay_loop2
+        ADD R18, R21
+        BRNE delay_loop1
+        RET

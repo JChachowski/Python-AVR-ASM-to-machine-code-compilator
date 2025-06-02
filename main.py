@@ -12,8 +12,18 @@ def write_hex_file(filename: str, machine_code: list[int]):
     ih = IntelHex()
     addr = 0
     for word in machine_code:
-        ih.puts(addr, word.to_bytes(2, byteorder="little"))
-        addr += 2
+        try:
+            ih.puts(addr, word.to_bytes(2, byteorder="little"))
+            addr += 2
+        except:
+            # ih.puts(addr, word.to_bytes(4, byteorder="little"))
+            # addr += 4
+            word1 = int((word & 0b11111111111111110000000000000000) >> 16)
+            word2 = int((word & 0b00000000000000001111111111111111))
+            ih.puts(addr, word1.to_bytes(4, byteorder="little"))
+            addr += 2
+            ih.puts(addr, word2.to_bytes(4, byteorder="little"))
+            addr += 2
     ih.write_hex_file(filename)
 
 #raw binary file generator

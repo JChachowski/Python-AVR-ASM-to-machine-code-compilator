@@ -11,5 +11,9 @@ class LabelCollector(AVRVisitor):
         return self.visitChildren(ctx)
 
     def visitInstruction(self, ctx):
-        self.address += 2  # each instruction is 2 bytes
+        mnemonic = ctx.mnemonic().getText().upper()
+        if(mnemonic == "CALL"):
+            self.address += 4
+        else:
+            self.address += 2  # 2 bytes
         return self.visitChildren(ctx)
