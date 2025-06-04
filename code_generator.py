@@ -18,7 +18,7 @@ class CodeGenerator(AVRVisitor):
             self.pc += 2
         return self.visitChildren(ctx)
 
-    # 4 out of 124
+    # ~30 out of 124
     def encode_instruction(self, mnemonic, operands):
         if mnemonic == "ADC":
             # Format: ADC Rd,Rr

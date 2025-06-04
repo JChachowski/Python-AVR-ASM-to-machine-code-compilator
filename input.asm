@@ -1,31 +1,44 @@
+        .org 0x0000
+
 start:
-        LDI R16, 0x20      ; R16 = 0b00100000 (PB5 mask)
-        OUT 0x04, R16          ; DDRB ← R16 (set PB5 as output)
-main_loop:
+        LDI R16, 32          ; R16 = (1 << 5), PB5 mask
+        OUT 4, R16           ; DDRB ← R16, set PB5 as output
+
+loop:
         CALL led_on
-        CALL delay
+        CALL delay_1s
         CALL led_off
-        CALL delay
-        BRCC main_loop         ; Loop forever (unconditional)
+        CALL delay_1s
+        BRCC loop            ; Infinite loop
+
+; ---------------------------
 led_on:
-        OUT 0x05, R16          ; PORTB ← R16 → LED ON
+        OUT 5, R16           ; PORTB ← R16, turn LED on
         RET
+
 led_off:
-        LDI R17, 0x00
-        OUT 0x05, R17          ; PORTB ← 0 → LED OFF
+        LDI R17, 0
+        OUT 5, R17           ; PORTB ← 0, turn LED off
         RET
-delay:
-        LDI R18, 100
+
+; ---------------------------
+delay_1s:
+        LDI R18, 8           ; Outer loop count (~8×125ms ≈ 1s)
+delay_outer:
+        CALL delay_125ms
+        ADD R18, R19         ; R19 is 0 by default; emulate DEC
+        BRNE delay_outer
+        RET
+
+; ---------------------------
+delay_125ms:
+        LDI R20, 250
 delay_loop1:
-        LDI R19, 255
+        LDI R21, 250
 delay_loop2:
-        LDI R20, 255
-delay_loop3:
         NOP
-        ADD R20, R21           ; R21 = 0, so this acts like DEC
-        BRNE delay_loop3
-        ADD R19, R21
+        ADD R21, R22         ; R22 = 0
         BRNE delay_loop2
-        ADD R18, R21
+        ADD R20, R22
         BRNE delay_loop1
         RET
