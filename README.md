@@ -78,13 +78,13 @@ pip install intelhex
 pip install tkinter
 ```
 # Usage
-program allows CLI and GUI usage.
-When run with arguments:
-`python main.py [input_file.asm] [output_file.bin | output_file.hex] `
-will create .bin or .hex file with output_file name in the same directory.
-when run without arguments:
-`python main.py`
-will start GUI interface:
+program allows CLI and GUI usage.</br>
+When run with arguments:</br>
+`python main.py [input_file.asm] [output_file.bin | output_file.hex] `</br>
+will create .bin or .hex file with output_file name in the same directory.</br>
+when run without arguments:</br>
+`python main.py`</br>
+will start GUI interface:</br>
 ![GUI Image](https://github.com/JChachowski/Python-AVR-ASM-to-machine-code-compilator/blob/main/gui_tkik.jpg?raw=true)
 
 # Examples (WIP)
