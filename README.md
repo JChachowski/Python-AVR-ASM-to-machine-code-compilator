@@ -69,6 +69,24 @@ WS              : [ \t]+ -> skip ;
 
 ```
 ---
+# instalation
+```
+pip install antlr4-python3-runtime
+curl -O https://www.antlr.org/download/antlr-4.13.0-complete.jar
+java -jar antlr-4.13.0-complete.jar -Dlanguage=Python3 -visitor AVR.g4
+pip install intelhex
+pip install tkinter
+```
+# Usage
+program allows CLI and GUI usage.
+When run with arguments:
+`python main.py [input_file.asm] [output_file.bin | output_file.hex] `
+will create .bin or .hex file with output_file name in the same directory.
+when run without arguments:
+`python main.py`
+will start GUI interface:
+![GUI Image](http://chachowski/PLIKI/gui_tkik.jpg)
+
 # Examples (WIP)
 
 ### Miganie diodą na PB0
