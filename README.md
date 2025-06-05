@@ -56,7 +56,7 @@ directive       : DOT_DIRECTIVE operandList? ;
 comment         : COMMENT ;
 
 // Lexer rules
-mnemonic        : 'ADC' | 'ADD' | 'ADIW' | 'AND' | 'ANDI' | 'ASR' | 'BCLR' | 'BLD' | 'BRBC' | 'BRBS' | 'BRCC' | 'BRCS' | 'BREAK'| ...;
+mnemonic        : 'ADC' | 'ADD' | 'ADIW' | 'AND' | 'ANDI' | 'ASR' | 'BCLR' | 'BLD' | 'BRBC' | 'BRBS' | 'BRCC' | 'BRCS' | 'BREAK' | 'BREQ' | 'BRGE' | 'BRHC' | 'BRHS' | 'BRID' | 'BRIE' | 'BRLO' | 'BRLT' | 'BRMI' | 'BRNE' | 'BRPL' | 'BRSH' | 'BRTC' | 'BRTS' | 'BRVC' | 'BRVS' | 'BSET' | 'BST' | 'CALL' | 'RET' | 'OUT' | 'LDI' ;
 REGISTER        : 'R' [0-9] | 'R'{1,2}[0-9] | 'R30' | 'R31' ;
 NUMBER          : '0x' [0-9a-fA-F]+ | '0X' [0-9a-fA-F]+ | [0-9]+ ;
 LABEL_DEF       : [a-zA-Z_][a-zA-Z0-9_]* ':' ;
