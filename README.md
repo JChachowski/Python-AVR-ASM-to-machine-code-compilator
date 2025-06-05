@@ -85,7 +85,7 @@ will create .bin or .hex file with output_file name in the same directory.
 when run without arguments:
 `python main.py`
 will start GUI interface:
-![GUI Image](http://chachowski/PLIKI/gui_tkik.jpg)
+![GUI Image](https://github.com/JChachowski/Python-AVR-ASM-to-machine-code-compilator/blob/main/gui_tkik.jpg?raw=true)
 
 # Examples (WIP)
 
