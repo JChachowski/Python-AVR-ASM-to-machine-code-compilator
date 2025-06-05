@@ -91,35 +91,54 @@ will start GUI interface:</br>
 
 ### Miganie diodą na PB0
 ```ASM
-ldi    R16, 0x03
-    ldi    R17, 0xFF
-    out    0x3D, R17
-    out    0x3E, R16
-    ldi    R20, 0b00000001
-    ldi    R21, 0
-    out    0x17, R20
-LOOP:
-    out    0x18, R20
-    call    DELAY_1S
-    out    0x18, R21
-    call    DELAY_1S
-    jmp    LOOP
+start:
+        LDI R16, 32          ; R16 = (1 << 5), PB5 mask
+        OUT 4, R16           ; DDRB ← R16, set PB5 as output
 
-DELAY_1S:
-    ldi    r16, 82
-    ldi    r17, 43
-    ldi    r18, 0
-DELAY_1S_1: 
-    dec    r18
-    brne    DELAY_1S_1
-    dec    r17
-    brne    DELAY_1S_1
-    dec    r16
-    brne    DELAY_1S_1
-    lpm
-    nop
-    ret
+loop:
+        CALL led_on
+        CALL delay_1s
+        CALL led_off
+        CALL delay_1s
+        BRCC loop            ; Infinite loop
+
+; ---------------------------
+led_on:
+        OUT 5, R16           ; PORTB ← R16, turn LED on
+        RET
+
+led_off:
+        LDI R17, 0
+        OUT 5, R17           ; PORTB ← 0, turn LED off
+        RET
+
+; ---------------------------
+delay_1s:
+        LDI R18, 8           ; Outer loop count (~8×125ms ≈ 1s)
+delay_outer:
+        CALL delay_125ms
+        ADD R18, R19         ; R19 is 0 by default; emulate DEC
+        BRNE delay_outer
+        RET
+
+; ---------------------------
+delay_125ms:
+        LDI R20, 250
+delay_loop1:
+        LDI R21, 250
+delay_loop2:
+        NOP
+        ADD R21, R22         ; R22 = 0
+        BRNE delay_loop2
+        ADD R20, R22
+        BRNE delay_loop1
+        RET
+
 ```
 ```hex
-03 E0 1F EF 1D BF 0E BF 41 E0 50 E0 47 BB 48 BB 0E 94 00 00 58 BB 0E 94 00 00 0C 94 00 00 02 E5 1B E2 20 E0 2A 95 01 F4 1A 95 01 F4 0A 95 01 F4 C8 95 00 00 08 95
+:1000000000E204B90E940B000E9410000E940D0043
+:100010000E941000B8F705B9089510E015B90895C9
+:1000200028E00E941600230FE1F708954AEF5AEFE7
+:0C0030000000560FE9F7460FD1F70895C5
+:00000001FF
 ```
